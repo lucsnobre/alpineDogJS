@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Raças de Cães</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+    <div class="container" x-data="dogApp()">
+        <header>
+            <h1>🐕 Explorador de Raças de Cães</h1>
+            <p>Explore todas as raças de cães usando a API Dog CEO</p>
+        </header>
+
+        <main>
+            <!-- Loading state -->
+            <div x-show="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Carregando raças de cães...</p>
+            </div>
+
+            <!-- Error state -->
+            <div x-show="error" class="error" x-text="error"></div>
+
+            <!-- Search and filter -->
+            <div x-show="!loading && !error" class="search-section">
+                <input 
+                    type="text" 
+                    x-model="searchTerm" 
+                    placeholder="Buscar por uma raça..." 
+                    class="search-input"
+                >
+                <p class="breed-count" x-text="`Encontradas ${filteredBreeds.length} raças`"></p>
+            </div>
+
+            <!-- Breeds grid -->
+            <div x-show="!loading && !error" class="breeds-grid">
+                <template x-for="breed in filteredBreeds" :key="breed.name">
+                    <div class="breed-card" @click="selectBreed(breed.name)">
+                        <h3 x-text="breed.name" class="breed-name"></h3>
+                        <div x-show="breed.subBreeds.length > 0" class="sub-breeds">
+                            <p class="sub-breeds-title">Sub-raças:</p>
+                            <ul>
+                                <template x-for="subBreed in breed.subBreeds" :key="subBreed">
+                                    <li x-text="subBreed"></li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="breed-info">
+                            <span x-text="breed.subBreeds.length > 0 ? `${breed.subBreeds.length} sub-raças` : 'Sem sub-raças'"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Selected breed modal -->
+            <div x-show="selectedBreed" class="modal-overlay" @click="closeModal()">
+                <div class="modal" @click.stop>
+                    <div class="modal-header">
+                        <h2 x-text="selectedBreed" class="modal-title"></h2>
+                        <button @click="closeModal()" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div x-show="loadingImage" class="loading-image">
+                            <div class="spinner"></div>
+                            <p>Carregando imagem aleatória...</p>
+                        </div>
+                        <img x-show="breedImage && !loadingImage" :src="breedImage" :alt="selectedBreed" class="breed-image">
+                        <button @click="getRandomImage()" class="refresh-btn" :disabled="loadingImage">
+                            Buscar Outra Imagem
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Desenvolvido com <a href="https://dog.ceo/dog-api/" target="_blank">Dog CEO API</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
